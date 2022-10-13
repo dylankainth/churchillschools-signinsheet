@@ -1,21 +1,29 @@
-const { MongoClient } = require("mongodb");
+const fetch = require('node-fetch')
 
-const mongoClient = new MongoClient(process.env.MONGODB_URI);
-
-const clientPromise = mongoClient.connect();
-
-const handler = async (event) => {
-    try {
-        const database = (await clientPromise).db(process.env.MONGODB_DATABASE);
-        const collection = database.collection(process.env.MONGODB_COLLECTION);
-        const results = await collection.find({}).limit(10).toArray();
-        return {
-            statusCode: 200,
-            body: JSON.stringify(results),
-        }
-    } catch (error) {
-        return { statusCode: 500, body: error.toString() }
+const handler = async function () {
+  try {
+    const response = await fetch('https://icanhazdadjoke.com', {
+      headers: { Accept: 'application/json' },
+    })
+    if (!response.ok) {
+      // NOT res.status >= 200 && res.status < 300
+      return { statusCode: response.status, body: response.statusText }
     }
+    const data = await response.json()
+    
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ msg: data.joke }),
+    }
+  } catch (error) {
+    // output to netlify function log
+    console.log(error)
+    return {
+      statusCode: 500,
+      // Could be a custom message or object i.e. JSON.stringify(err)
+      body: JSON.stringify({ msg: error.message }),
+    }
+  }
 }
 
 module.exports = { handler }

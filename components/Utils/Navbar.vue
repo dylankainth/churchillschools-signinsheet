@@ -7,7 +7,6 @@
         </Nuxt-Link>
       </div>
     </nav>
-    <nuxt />
   </div>
 </template>
 

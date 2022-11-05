@@ -1,74 +1,94 @@
 <template>
-  <div class="container">
-    <h1>Get started with Bootstrap</h1>
-    <p class="fs-5 col-md-8">
-      Quickly and easily get started with Bootstrap's compiled, production-ready
-      files with this barebones example featuring some basic HTML and helpful
-      links. Download all our examples to get started.
-    </p>
+  <div>
+    <span>{{ signInData }}</span>
 
-    <div class="mb-5">
-      <a href="/docs/5.2/examples/" class="btn btn-primary btn-lg px-4"
-        >Download examples</a
-      >
-    </div>
-
-    <hr class="col-3 col-md-2 mb-5" />
-
-    <div class="row g-5">
-      <div class="col-md-6">
-        <h2>Starter projects</h2>
-        <p>
-          Ready to beyond the starter template? Check out these open source
-          projects that you can quickly duplicate to a new GitHub repository.
-        </p>
-        <ul class="icon-list ps-0">
-          <li class="d-flex align-items-start mb-1">
-            <a
-              href="https://github.com/twbs/bootstrap-npm-starter"
-              rel="noopener"
-              target="_blank"
-              >Bootstrap npm starter</a
-            >
-          </li>
-          <li class="text-muted d-flex align-items-start mb-1">
-            Bootstrap Parcel starter (coming soon!)
-          </li>
-        </ul>
-      </div>
-
-      <div class="col-md-6">
-        <h2>Guides</h2>
-        <p>
-          Read more detailed instructions and documentation on using or
-          contributing to Bootstrap.
-        </p>
-        <ul class="icon-list ps-0">
-          <li class="d-flex align-items-start mb-1">
-            <a href="/docs/5.2/getting-started/introduction/"
-              >Bootstrap quick start guide</a
-            >
-          </li>
-          <li class="d-flex align-items-start mb-1">
-            <a href="/docs/5.2/getting-started/webpack/"
-              >Bootstrap Webpack guide</a
-            >
-          </li>
-          <li class="d-flex align-items-start mb-1">
-            <a href="/docs/5.2/getting-started/parcel/"
-              >Bootstrap Parcel guide</a
-            >
-          </li>
-          <li class="d-flex align-items-start mb-1">
-            <a href="/docs/5.2/getting-started/vite/">Bootstrap Vite guide</a>
-          </li>
-          <li class="d-flex align-items-start mb-1">
-            <a href="/docs/5.2/getting-started/contribute/"
-              >Contributing to Bootstrap</a
-            >
-          </li>
-        </ul>
-      </div>
+    <div id="chart-wrapper">
+      <canvas id="chartReasonsToday" width="100" height="100"></canvas>
     </div>
   </div>
 </template>
+
+<style>
+#chart-wrapper {
+  display: inline-block;
+  position: relative;
+  width: 30%;
+}
+</style>
+
+<script>
+export default {
+  mounted() {
+    
+
+
+    this.charts.reasonsToday.chart = new Chart(document.getElementById('chartReasonsToday').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Red', 'Blue', 'Yellow'],
+        datasets: [
+          {
+            label: 'My First Dataset',
+            data: [300, 50, 100],
+            backgroundColor: [
+              'rgb(255, 99, 132)',
+              'rgb(54, 162, 235)',
+              'rgb(255, 205, 36)',
+              'rgb(255, 215, 86)',
+              'rgb(255, 205, 86)',
+
+            ],
+            hoverOffset: 4,
+          },
+        ],
+      },
+
+    })
+
+    this.getsignins()
+  },
+  data() {
+    return {
+      signInData: null,
+      charts:{
+        reasonsToday: {}
+      }
+    }
+  },
+  methods: {
+    getsignins() {
+      this.$axios
+        .get('/.netlify/functions/readtodayssignins')
+        .then((response) => {
+          this.signInData = response.data
+
+
+          this.updateCharts()
+        })
+
+     
+
+      setTimeout(this.getsignins, 5 * 1000)
+    },
+    updateCharts() {
+      // count the frequency of each visitReason in the signins
+      const reasons = this.signInData.reduce((acc, cur) => {
+        if (acc[cur.visitReason]) {
+          acc[cur.visitReason]++
+        } else {
+          acc[cur.visitReason] = 1
+        }
+        return acc
+      }, {})
+
+      // seperate the keys and values into seperate arrays
+      const reasonsLabels = Object.keys(reasons)
+      const reasonsData = Object.values(reasons)
+
+      this.charts.reasonsToday.chart.data.datasets[0].data = reasonsData
+      this.charts.reasonsToday.chart.data.labels = reasonsLabels
+      this.charts.reasonsToday.chart.update()
+    }
+  },
+}
+</script>

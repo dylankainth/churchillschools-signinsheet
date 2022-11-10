@@ -30,6 +30,7 @@ export default {
           'sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2',
         crossorigin: 'anonymous',
       },
+      { src:"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"}
     ]
   },
 
@@ -63,6 +64,7 @@ export default {
   auth: {
     redirect: {
       callback: '/auth',
+      login: '/auth/logon',
     },
     rewriteRedirects: true,
     strategies: {
@@ -95,7 +97,7 @@ export default {
         clientId: '8c54d40a-b5d3-4057-94de-b784f3f5d993',
         codeChallengeMethod: 'S256',
         scope: ['openid', 'profile'],
-        autoLogout: true,
+        autoLogout: false,
       },
     },
   },

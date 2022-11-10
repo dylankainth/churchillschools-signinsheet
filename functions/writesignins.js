@@ -23,6 +23,11 @@ const connectToDatabase = async (uri) => {
 const pushToDatabase = async (db, data) => {
   data.timestamp = new Date();
   await db.collection("signinrecord").insertOne(data);
+
+  console.log(data)
+
+  await db.collection("users").updateOne({ "name": data.surname }, { $push: { "signins": data } });
+
   return { statusCode: 201 };
 };
 

@@ -1,11 +1,22 @@
 <template>
   <div>
     <div class="mb-4">
-      <div class="row">
+      <div class="p-5 mb-4 bg-light rounded-3" v-if="stage==0">
+        <div class="container-fluid py-5 justify-content-center row">
+          <img src="~/assets/tool.svg" style="height:5rem;width:auto;opacity: 0.9;">
+          <h1 class="display-3 fw-bold text-center">Welcome to Churchill Schools</h1>
+          <p class="fs-4 text-center">Use this system to sign in.</p>
+          <p class="fs-4 text-center" v-if="minstillclosure()>0">The workshop's open for another {{minstillclosure()}} minutes</p>
+          <button class="btn btn-primary btn-lg w-25 fs-4" @click="stage+=1" type="button" v-if="minstillclosure()>0">Get Started</button>
+          <button class="btn btn-danger btn-lg w-25 fs-4" disabled type="button" v-if="minstillclosure()<0">The workshop is closed</button>
+        </div>
+      </div>
+
+      <div class="row" v-if="stage>=1">
         <div class="col">
           <h1 class="mb-3">What's your surname?</h1>
         </div>
-        <div class="col">
+        <div class="col-1">
           <h1
             v-if="surnameSelected"
             class="mb-3 text-secondary float-end"
@@ -20,7 +31,7 @@
       </div>
 
       <div
-        v-if="!surnameSelected"
+        v-if="!surnameSelected && stage>=1" 
         class="dropdown-menu d-block position-static pt-0 mx-0 rounded-3 shadow overflow-hidden w-280px py- border-0"
       >
         <div class="p-2 mb-2 bg-light border-bottom">
@@ -40,8 +51,13 @@
               class="dropdown-item d-flex align-items-center gap-2 py-2"
               @click="surnameSelected = surname"
             >
-              <span class="d-inline-block bg-danger rounded-circle p-1"></span>
-              <span>{{ surname.name }}</span>
+              <span v-if="surname.email.slice(0,2)==(new Date().getFullYear()-5).toString().slice(2,4)" class="d-inline-block bg-dark rounded-circle p-1"></span> <!-- overflow sixth -->
+              <span v-if="surname.email.slice(0,2)==(new Date().getFullYear()-4).toString().slice(2,4)" class="d-inline-block bg-primary rounded-circle p-1"></span> <!-- upper sixth -->
+              <span v-if="surname.email.slice(0,2)==(new Date().getFullYear()-3).toString().slice(2,4)" class="d-inline-block bg-danger rounded-circle p-1"></span> <!-- lower sixth -->
+              <span v-if="surname.email.slice(0,2)==(new Date().getFullYear()-2).toString().slice(2,4)" class="d-inline-block bg-warning rounded-circle p-1"></span> <!-- fifth form -->
+              <span v-if="surname.email.slice(0,2)==(new Date().getFullYear()-1).toString().slice(2,4)" class="d-inline-block bg-success rounded-circle p-1"></span> <!-- remove -->
+              <span v-if="surname.email.slice(0,2)==(new Date().getFullYear()).toString().slice(2,4)" class="d-inline-block bg-info rounded-circle p-1"></span> <!-- shell form -->
+              <span>{{ surname.name }} </span>
 
               <span class="text-secondary">
                 {{ surname.email }}
@@ -70,7 +86,8 @@
       <div class="col">
         <h1 class="mb-3">What's the reason for your visit?</h1>
       </div>
-      <div class="col">
+      <div class="col-1">
+        
         <h1
           v-if="visitReasonSelected"
           class="mb-3 text-secondary float-end"
@@ -129,23 +146,45 @@
       </div>
     </div>
 
-    <div v-if="surnameSelected && visitReasonSelected">
-      <h1 class="mb-3">How long do you plan to stay for?</h1>
+    <div class="row" v-if="surnameSelected && visitReasonSelected">
+      <div class="col">
+        <h1 class="mb-3">What's the reason for your visit?</h1>
+      </div>
+      <div class="col-1">
+        <h1
+          v-if="durationSelected"
+          class="mb-3 text-secondary float-end"
+          @click="durationSelected = null"
+        >
+          <img src="~/assets/edit.png" style="opacity: 0.5; cursor: pointer" />
+        </h1>
+      </div>
+    </div>
 
+    <div v-if="surnameSelected && visitReasonSelected">
+      
       <div class="card text-center rounded-4 shadow border-0 mb-3">
         <div class="card-body p-5">
           <h2 style="font-size: 5rem">{{ durationBuffer }}</h2>
           <h2>minutes</h2>
+          <h2 class="text-secondary">leave at {{ momentTime(new Date(Date.now() + durationBuffer * 60000)) }}</h2>
           <input
             type="range"
             class="form-range"
             min="15"
-            max="210"
-            step="15"
+            :max="minstillclosure()"
+            step="5"
             id="customRange3"
             v-model="durationBuffer"
             :disabled="durationSelected"
           />
+          <button
+            @click="durationBuffer = minstillclosure();"
+            class="btn btn-info"
+            :disabled="durationSelected"
+          >
+            Set to closing time
+          </button>
           <button
             @click="durationSelected = durationBuffer"
             class="btn btn-primary"
@@ -157,7 +196,7 @@
       </div>
     </div>
 
-    <div v-if="surnameSelected && visitReasonSelected && durationSelected">
+    <div v-if="surnameSelected && visitReasonSelected && durationSelected" href="#finish">
       <h1 class="mb-3">Complete Sign in</h1>
       <button @click="signin" class="btn btn-primary btn-lg" v-if="sendStatus != 10">
         <span v-if="sendStatus == 0">Sign in</span>
@@ -192,8 +231,10 @@
 
 <script>
 export default {
+  middleware : 'auth',
   data() {
     return {
+      stage:0,
       surnameSearch: null,
       surnameResults: [],
       surnameSelected: null,
@@ -234,6 +275,22 @@ export default {
           name: 'Design and Innovation Society',
           image: 'designandinnovation.jpg',
         },
+        {
+          name: 'Shell Project',
+          image: 'shell.jpg',
+        },
+        {
+          name: 'Personal Project',
+          image: 'personalproject.jpg',
+        },
+        {
+          name: 'Prep',
+          image: 'solidworks.jpg',
+        },
+        {
+          name: 'Other',
+          image: 'other.jpg',
+        },
       ],
       visitReasonSelected: null,
       durationBuffer: 60,
@@ -259,6 +316,16 @@ export default {
     },
   },
   methods: {
+    momentTime(date) {
+      return moment(date).format('h:mm a')
+    },
+    minstillclosure() {
+      // calculate how many minutes until 6pm
+      var now = new Date()
+      var close = new Date()
+      close.setHours(18, 0, 0, 0)
+      return Math.round((close - now) / 60000)
+    },
     signin() {
       this.sendStatus = 1
       this.$axios.$post('/.netlify/functions/writesignins', {
@@ -267,6 +334,11 @@ export default {
         duration: this.durationSelected,
       }).then(() => {
         this.sendStatus = 2
+
+        // refresh page after 2 seconds
+        setTimeout(() => {
+          location.reload()
+        }, 2000)
       }).catch((err) => {
         this.signInErr = err
         this.sendStatus = 10
@@ -275,3 +347,12 @@ export default {
   },
 }
 </script>
+
+<style>
+.btn-primary {
+  background-color: #001844;
+}
+.btn-primary:hover {
+  background-color: #002a78;
+}
+</style>

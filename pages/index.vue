@@ -51,6 +51,7 @@
 
 <script>
 export default {
+  middleware: 'auth',
   mounted() {
     this.charts.reasonsToday.chart = new Chart(
       document.getElementById('chartReasonsToday').getContext('2d'),
@@ -73,11 +74,10 @@ export default {
               backgroundColor: [
                 'rgba(154,202,32,255)',
                 'rgba(36,125,195,255)',
-                'rgba(191,37,33,255)',
+                'rgba(255, 126, 122,255)',
                 'rgba(254,120,0,255)',
                 'rgba(160,31,28,255)',
                 'rgba(248,98,0,255)',
-                'rgba(254,218,96,255)',
                 'rgba(189,119,178,255)',
                 'rgba(128,119,184,255)'
               ],

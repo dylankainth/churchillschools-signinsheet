@@ -1,5 +1,6 @@
 // ./lambda_functions/pokemon.js
 const MongoClient = require("mongodb").MongoClient;
+const {ObjectId} = require('mongodb'); // or ObjectID 
 
 const MONGODB_URI = 'mongodb+srv://dbuser:dbpass@cluster0.z9gcycs.mongodb.net/?retryWrites=true&w=majority';
 const DB_NAME = 'DIGITALSIGNIN';
@@ -20,17 +21,21 @@ const connectToDatabase = async (uri) => {
   return cachedDb;
 };
 
-const pushToDatabase = async (db, data) => {
-  data.timestamp = new Date();
-  await db.collection("signinrecord").insertOne(data);
+const pushToDatabase = async (db, body) => {
+  console.log(body.data)
 
-  await db.collection("users").updateOne({ "name": data.surname }, { $push: { "signins": data } });
+  // duration time is timestamp now - timestamp of sign in
+  body.data.duration = new Date() - new Date(body.data.timestamp);
 
-  // increment the count for the reason
-  await db.collection("reasons").updateOne({ "name": data.visitReason }, { $inc: { "count": 1 } });
+  buffer = (Math.floor(body.data.duration/(1000*60))).toString() 
 
-  // add the timestamp of the signin to an array of the reason
-  await db.collection("reasons").updateOne({ "name": data.visitReason }, { $push: { "signins": {"timestamp": data.timestamp, "duration": data.duration } } });
+  console.log(buffer)
+  console.log(body.data._id)
+
+  // edit signinrecord with id _id
+  await db.collection("signinrecord").updateOne({"_id": ObjectId(body.data._id) }, { $set: { "duration": buffer} });
+
+
 
   return { statusCode: 201 };
 };

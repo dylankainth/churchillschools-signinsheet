@@ -1,4 +1,3 @@
-// ./lambda_functions/pokemon.js
 const MongoClient = require("mongodb").MongoClient;
 
 const MONGODB_URI = 'mongodb+srv://dbuser:dbpass@cluster0.z9gcycs.mongodb.net/?retryWrites=true&w=majority';
@@ -20,19 +19,17 @@ const connectToDatabase = async (uri) => {
   return cachedDb;
 };
 
-const pushToDatabase = async (db, data) => {
-  data.timestamp = new Date();
-  await db.collection("signinrecord").insertOne(data);
+const queryDatabase = async (db) => {
+  // read the reasons from the database
+  const reasons = await db.collection("reasons").find({}).toArray();
 
-  await db.collection("users").updateOne({ "name": data.surname }, { $push: { "signins": data } });
-
-  // increment the count for the reason
-  await db.collection("reasons").updateOne({ "name": data.visitReason }, { $inc: { "count": 1 } });
-
-  // add the timestamp of the signin to an array of the reason
-  await db.collection("reasons").updateOne({ "name": data.visitReason }, { $push: { "signins": {"timestamp": data.timestamp, "duration": data.duration } } });
-
-  return { statusCode: 201 };
+  return {
+    statusCode: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(reasons),
+  };
 };
 
 module.exports.handler = async (event, context) => {
@@ -41,7 +38,6 @@ module.exports.handler = async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
   const db = await connectToDatabase(MONGODB_URI);
-
-  return pushToDatabase(db, JSON.parse(event.body));
+  return queryDatabase(db);
 
 };

@@ -1,8 +1,7 @@
-const MongoClient = require('mongodb').MongoClient
+const MongoClient = require("mongodb").MongoClient;
 
-const MONGODB_URI =
-  'mongodb+srv://dbuser:dbpass@cluster0.z9gcycs.mongodb.net/?retryWrites=true&w=majority'
-const DB_NAME = 'DIGITALSIGNIN'
+const MONGODB_URI = process.env.MONGODB_URI_CHURCHILLSCHOOLS;
+const DB_NAME = 'DIGITALSIGNIN';
 
 let cachedDb = null
 

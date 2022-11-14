@@ -96,7 +96,7 @@ export default {
         // ******** change this for your Application (Client) ID ********
         clientId: '8c54d40a-b5d3-4057-94de-b784f3f5d993',
         codeChallengeMethod: 'S256',
-        scope: ['openid', 'profile'],
+        scope: ['openid', 'profile', 'email'],
         autoLogout: false,
       },
     },

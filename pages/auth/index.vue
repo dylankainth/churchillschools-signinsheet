@@ -10,6 +10,9 @@ export default {
   created () {
     const decodedBearer = jwt_decode(this.$auth.$storage.getUniversal('_token.aad'))
     this.$auth.$storage.setUniversal('jwt_decoded', decodedBearer)
+
+    // add the auth token to nuxt axios header
+    this.$axios.setHeader('Authorization', `Bearer ${this.$auth.$storage.getUniversal('_token.aad')}`)
   }
 }
 </script>

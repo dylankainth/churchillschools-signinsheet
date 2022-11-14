@@ -5,6 +5,9 @@ const DB_NAME = 'DIGITALSIGNIN';
 
 let cachedDb = null
 
+//import jwt
+const jwt = require('jsonwebtoken')
+
 const connectToDatabase = async (uri) => {
   // we can cache the access to our database to speed things up a bit
   // (this is the only thing that is safe to cache here)
@@ -40,15 +43,47 @@ const queryDatabase = async (db,name) => {
   }
 }
 
+
+
 module.exports.handler = async (event, context) => {
   // otherwise the connection will never complete, since
   // we keep the DB connection alive
   context.callbackWaitsForEmptyEventLoop = false
 
   const db = await connectToDatabase(MONGODB_URI)
+  // decode the JWT token in the Authorization header
 
-  // get query string parameter called 'name'
-  const name = event.queryStringParameters.name
+  if (event.headers.authorization) {
+    const token = event.headers.authorization.split(' ')[1]
+    const decoded = jwt.decode(token, { complete: true })
 
-  return queryDatabase(db,name)
+
+    // check if the user's email ends with harrowschool.org.uk
+    if (decoded.payload.upn.endsWith('harrowschool.org.uk')) {
+      // get query string parameter called 'name'
+      const name = event.queryStringParameters.name
+
+      return queryDatabase(db,name)
+    } else {
+      // return 403
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: 'Forbidden' }),
+      }
+    }
+  } else {
+    // return 403
+    return {
+      statusCode: 403,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: 'Forbidden' }),
+    }
+  }
 }
+
+

@@ -3,41 +3,59 @@
     <!-- <span>{{ signInData }}</span> -->
 
     <div class="row align-items-md-stretch">
-      <div class="col-md-6">
+      <div class="col-md-6" v-show="carousel == 0">
         <div class="h-100 p-5 rounded-3 bg-white shadow">
+          <h2>Top sign in reasons today</h2>
           <div id="chart-wrapper">
             <canvas id="chartReasonsToday" width="100" height="100"></canvas>
           </div>
+        </div>
+      </div>
+      <div class="col-md-6" v-show="carousel == 1">
+        <div class="h-100 p-5 rounded-3 bg-white shadow">
+          <h2>Workshop Leaderboard</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Surname</th>
+                <th scope="col">Minutes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="person in leaderBoardData" v-bind:key="person._id">
+                <td>{{ person.name }}</td>
+                <td>{{ person.duration }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="col-md-6">
         <div class="h-100 p-5 rounded-3 bg-white shadow">
           <h2>Currently in the workshop</h2>
           <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Surname</th>
-          <th scope="col">Visit Reason</th>
-          <th scope="col">Entry Time</th>
-          <!-- <th scope="col">duration</th> -->
-          <th scope="col">Exit Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="signin in currentlyInWorkshop" v-bind:key="signin._id">
-          <td>{{ signin.surname }}</td>
-          <td>{{ signin.visitReason }}</td>
-          <td>{{ momentTime(new Date(signin.timestamp))}}</td>
-          <!-- <td>{{ signin.duration }}</td> -->
-          <td>{{ momentTime(signin.timeOfExit)}}</td>
-        </tr>
-      </tbody>
-    </table>
+            <thead>
+              <tr>
+                <th scope="col">Surname</th>
+                <th scope="col">Visit Reason</th>
+                <th scope="col">Entry Time</th>
+                <!-- <th scope="col">duration</th> -->
+                <th scope="col">Exit Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="signin in currentlyInWorkshop" v-bind:key="signin._id">
+                <td>{{ signin.surname }}</td>
+                <td>{{ signin.visitReason }}</td>
+                <td>{{ momentTime(new Date(signin.timestamp)) }}</td>
+                <!-- <td>{{ signin.duration }}</td> -->
+                <td>{{ momentTime(signin.timeOfExit) }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-
-    
   </div>
 </template>
 
@@ -53,6 +71,11 @@
 export default {
   middleware: 'auth',
   mounted() {
+    // make carousel switch between 0 and 1 every 10 seconds
+    setInterval(() => {
+      this.carousel = this.carousel == 0 ? 1 : 0;
+    }, 10000);
+
     this.charts.reasonsToday.chart = new Chart(
       document.getElementById('chartReasonsToday').getContext('2d'),
       {
@@ -79,7 +102,7 @@ export default {
                 'rgba(160,31,28,255)',
                 'rgba(248,98,0,255)',
                 'rgba(189,119,178,255)',
-                'rgba(128,119,184,255)'
+                'rgba(128,119,184,255)',
               ],
               hoverOffset: 4,
             },
@@ -99,6 +122,7 @@ export default {
         reasonsToday: {},
       },
       leaderBoardData: null,
+      carousel: 0,
     }
   },
   methods: {
@@ -114,12 +138,9 @@ export default {
           this.updateCharts()
 
           this.filterCurrentlyInWorkshop()
-          
         })
-      
-        
 
-      setTimeout(this.getsignins, 5 * 1000)
+      setTimeout(this.getsignins, 45 * 1000)
     },
     getleaderboard() {
       this.$axios
@@ -140,8 +161,6 @@ export default {
         item.timeOfExit = timeOfExit
         return timeOfExit > Date.now()
       })
-
-   
     },
     updateCharts() {
       // count the frequency of each visitReason in the signins
@@ -163,7 +182,5 @@ export default {
       this.charts.reasonsToday.chart.update()
     },
   },
-
- 
 }
 </script>

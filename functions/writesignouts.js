@@ -44,9 +44,6 @@ const pushToDatabase = async (db, body) => {
 };
 
 module.exports.handler = async (event, context) => {
-  // otherwise the connection will never complete, since
-  // we keep the DB connection alive
-  context.callbackWaitsForEmptyEventLoop = false
 
   const db = await connectToDatabase(MONGODB_URI)
   // decode the JWT token in the Authorization header

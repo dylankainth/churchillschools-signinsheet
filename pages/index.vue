@@ -89,6 +89,7 @@ export default {
     )
 
     this.getsignins()
+    this.getleaderboard()
   },
   data() {
     return {
@@ -97,6 +98,7 @@ export default {
       charts: {
         reasonsToday: {},
       },
+      leaderBoardData: null,
     }
   },
   methods: {
@@ -119,6 +121,14 @@ export default {
 
       setTimeout(this.getsignins, 5 * 1000)
     },
+    getleaderboard() {
+      this.$axios
+        .get('/.netlify/functions/readleaderboard')
+        .then((response) => {
+          this.leaderBoardData = response.data
+        })
+      setTimeout(this.getsignins, 60 * 30 * 1000)
+    },
     filterCurrentlyInWorkshop() {
       // add items to currentlyInWorkshop from signInData if their duration (minutes) plus timestamp is greater than now
       this.currentlyInWorkshop = this.signInData.filter((item) => {
@@ -131,9 +141,7 @@ export default {
         return timeOfExit > Date.now()
       })
 
-      console.log(this.currentlyInWorkshop)
-
-      
+   
     },
     updateCharts() {
       // count the frequency of each visitReason in the signins

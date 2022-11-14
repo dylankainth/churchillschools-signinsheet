@@ -1,47 +1,65 @@
-const MongoClient = require("mongodb").MongoClient;
+const MongoClient = require('mongodb').MongoClient
 
-const MONGODB_URI = process.env.MONGODB_URI_CHURCHILLSCHOOLS;
-const DB_NAME = 'DIGITALSIGNIN';
-
-let cachedDb = null;
+const MONGODB_URI = process.env.MONGODB_URI_CHURCHILLSCHOOLS
+const DB_NAME = 'DIGITALSIGNIN'
 
 //import jwt
 const jwt = require('jsonwebtoken')
 
-var ObjectId = require('mongodb').ObjectID;
+let cachedDb = null
 
 const connectToDatabase = async (uri) => {
   // we can cache the access to our database to speed things up a bit
   // (this is the only thing that is safe to cache here)
-  if (cachedDb) return cachedDb;
+  if (cachedDb) return cachedDb
 
   const client = await MongoClient.connect(uri, {
     useUnifiedTopology: true,
-  });
+  })
 
-  cachedDb = client.db(DB_NAME);
+  cachedDb = client.db(DB_NAME)
 
-  return cachedDb;
-};
+  return cachedDb
+}
 
-const pushToDatabase = async (db, body) => {
-  console.log(body.data)
+const queryDatabase = async (db) => {
+  // in the users collection, in the signins array, sum the duration key of each signin object for each user and sort
+  const searchresult = await db
+    .collection('users')  
+    .aggregate([
+      {
+        $project: {
+          name: 1,
+          duration: {
+            $sum: '$signins.duration',
+          },
+        },
+      },
+      {
+        $sort: {
+          duration: -1,
+        },
+      },
+    ])
+    .limit(15)
+    .toArray()
 
-  // duration time is timestamp now - timestamp of sign in
-  body.data.duration = new Date() - new Date(body.data.timestamp);
+    // remove users from searchresult who have a duration of zero
+    const filtered = searchresult.filter(function (el) {
+      return el.duration != 0;
+    });
 
-  buffer = (Math.floor(body.data.duration/(1000*60))).toString() 
+  
 
-  console.log(buffer)
-  console.log(body.data._id)
-
-  // edit signinrecord with id _id
-  await db.collection("signinrecord").updateOne({"_id": ObjectId(body.data._id) }, { $set: { "duration": buffer} });
-
-
-
-  return { statusCode: 201 };
-};
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(filtered),
+  }
+  
+}
 
 module.exports.handler = async (event, context) => {
   // otherwise the connection will never complete, since
@@ -53,13 +71,13 @@ module.exports.handler = async (event, context) => {
 
   if (event.headers.authorization) {
     const token = event.headers.authorization.split(' ')[1]
+
     const decoded = jwt.decode(token, { complete: true })
 
 
     // check if the user's email ends with harrowschool.org.uk
     if (decoded.payload.upn.endsWith('harrowschool.org.uk')) {
-
-      return pushToDatabase(db, JSON.parse(event.body));
+      return queryDatabase(db)
     } else {
       // return 403
       return {

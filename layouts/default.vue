@@ -4,6 +4,9 @@
     <div class="container py-5">
       <Nuxt />
     </div>
+
+    
+
   </div>
 </template>
 
@@ -21,6 +24,9 @@ body {
 .page-enter,
 .page-leave-to {
   opacity: 0;
+}
+body {
+  overflow-x: hidden; /* Hide x scrollbar */
 }
 
 </style>

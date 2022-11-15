@@ -3,7 +3,7 @@
     <!-- <span>{{ signInData }}</span> -->
 
     <div class="row align-items-md-stretch">
-      <div class="col-md-6" v-show="carousel == 0">
+      <div class="col-md-6 heightcard" v-show="carousel == 0">
         <div class="h-100 p-5 rounded-3 bg-white shadow">
           <h2>Top sign in reasons today</h2>
           <div id="chart-wrapper">
@@ -11,7 +11,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6" v-show="carousel == 1">
+      <div class="col-md-6 heightcard" v-show="carousel == 1">
         <div class="h-100 p-5 rounded-3 bg-white shadow">
           <h2>Workshop Leaderboard</h2>
           <table class="table">
@@ -56,6 +56,28 @@
         </div>
       </div>
     </div>
+
+    <div style="margin-top:15vh">
+    <h5 class="text-secondary" style="text-align: center;">Brought to you from</h5>
+    <a href="https://css.harrowschool.io/" style="text-decoration:none">
+          <div class="row mb-3">
+            <div class="col-md-12">
+
+              <div class="row">
+                <div class="col-6 text-end">
+                  <img src="~assets/csslogogrey.png" class="my-auto" height="95rem" />
+                </div>
+                <div class="col-6 text-start credits text-secondary">
+                  The <br />Computer<br />
+                  Science<br />
+                  Society
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+        
   </div>
 </template>
 
@@ -64,6 +86,10 @@
   display: inline-block;
   position: relative;
   width: 100%;
+}
+
+.heightcard { 
+  height: 75vh;
 }
 </style>
 

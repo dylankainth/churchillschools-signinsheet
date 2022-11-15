@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mb-4">
+    <div class="mb-5">
       <div class="p-5 mb-4 bg-light rounded-3 shadow" v-if="stage == 0">
         <div class="container-fluid py-5 justify-content-center row">
           <img

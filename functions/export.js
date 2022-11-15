@@ -99,6 +99,20 @@ exports.handler = async (event, context) => {
 	// decode the authkey using jwt after removing the 'Bearer ' prefix
 	const decoded = jwt.decode(params.authkey.substring(7), { complete: true })
 
+    // check if user's email starts a number between 0 and 9
+    if (decoded.payload.upn.startsWith('0') || decoded.payload.upn.startsWith('1') || decoded.payload.upn.startsWith('2') || decoded.payload.upn.startsWith('3') || decoded.payload.upn.startsWith('4') || decoded.payload.upn.startsWith('5') || decoded.payload.upn.startsWith('6') || decoded.payload.upn.startsWith('7') || decoded.payload.upn.startsWith('8') || decoded.payload.upn.startsWith('9')) {
+      // then they're a student, so don't export
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: 'Forbidden' }),
+      }
+    } else {
+      
+    }
+
     // check if the user's email ends with harrowschool.org.uk
     if (decoded.payload.upn.endsWith('harrowschool.org.uk')) {
       // Create archive

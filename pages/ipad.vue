@@ -12,7 +12,7 @@
           </h1>
           <p class="fs-4 text-center">Use this system to sign in.</p>
           <p class="fs-4 text-center" v-if="minstillclosure() > 0">
-            The workshop's open for another {{ minstillclosure() }} minutes
+            The workshop's open for another {{ Math.round((new Date().setHours(18, 0, 0, 0) - new Date()) / 60000) }} minutes
           </p>
           <button
             class="btn btn-primary btn-lg w-25 fs-4 mx-3"
@@ -247,7 +247,7 @@
 
         <div class="row" v-if="surnameSelected && visitReasonSelected">
           <div class="col">
-            <h1 class="mb-3">What's the reason for your visit?</h1>
+            <h1 class="mb-3">How long do you plan to stay?</h1>
           </div>
           <div class="col-1">
             <h1

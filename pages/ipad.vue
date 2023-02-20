@@ -495,6 +495,7 @@ export default {
       return Math.round((close - now) / 60000)
     },
     signin() {
+      this.durationSelected = this.durationBuffer
       this.sendStatus = 1
       this.$axios
         .$post('/.netlify/functions/writesignins', {

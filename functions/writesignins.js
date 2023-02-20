@@ -27,7 +27,6 @@ const pushToDatabase = async (db, data) => {
   data.timestamp = new Date();
   await db.collection("signinrecord").insertOne(data);
 
-
   await db.collection("users").updateOne({ "name": data.surname }, { $push: { "signins": data } });
 
   // increment the count for the reason

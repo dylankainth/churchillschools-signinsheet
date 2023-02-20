@@ -289,17 +289,39 @@
               >
                 Set to closing time
               </button>
-              <button
+              <!-- <button
                 @click="durationSelected = durationBuffer"
                 class="btn btn-primary"
                 :disabled="durationSelected"
               >
-                Confirm
-              </button>
+                Submit
+              </button> -->
+
+              <button
+            @click="signin"
+            class="btn btn-primary"
+            v-if="sendStatus != 10"
+          >
+            <span v-if="sendStatus == 0">Sign in</span>
+            <span v-if="sendStatus == 1"
+              ><div class="spinner-border text-light" role="status"></div
+            ></span>
+            <span v-if="sendStatus == 2">✔️</span>
+          </button>
+          <button
+            @click="signin"
+            class="btn btn-danger"
+            v-if="sendStatus == 10"
+            disabled
+          >
+            <span>An error occurred.</span>
+          </button>
+          
             </div>
           </div>
         </div>
 
+        <!-- 
         <div
           v-if="surnameSelected && visitReasonSelected && durationSelected"
           href="#finish"
@@ -325,8 +347,8 @@
             <span>An error occurred.</span>
           </button>
           <span v-if="sendStatus == 10">{{ signInErr }}</span>
-        </div>
-      </div>
+        </div> -->
+      </div> 
       <div v-if="operation == 'signout'">
 
         <div class="row mb-2" v-if="stage >= 1">

@@ -41,7 +41,7 @@ const queryDatabase = async (db) => {
         },
       },
     ])
-    .limit(15)
+    .limit(10)
     .toArray()
 
     // remove users from searchresult who have a duration of zero

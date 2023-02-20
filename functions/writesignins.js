@@ -49,7 +49,20 @@ module.exports.handler = async (event, context) => {
     const token = event.headers.authorization.split(' ')[1]
     const decoded = jwt.decode(token, { complete: true })
 
+    // check if a signin with identical timestamp and name already exists
+    const searchresult = await db.collection('signinrecord').find({ "timestamp": JSON.parse(event.body).timestamp, "name": JSON.parse(event.body).name }).toArray()
 
+    // if it does, return 200 and do nothing
+    if (searchresult.length > 0) {
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: 'Already exists' }),
+      }
+    }
+    
     // check if the user's email ends with harrowschool.org.uk
     if (decoded.payload.upn.endsWith('harrowschool.org.uk')) {
       // get query string parameter called 'name'

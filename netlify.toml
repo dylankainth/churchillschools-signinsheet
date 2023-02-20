@@ -1,5 +1,7 @@
 [dev]
    command = "yarn dev"
+   targetPort = 8102
+   port = 8103
 [build]
   command = "yarn generate"
   publish = "dist"
@@ -9,3 +11,4 @@
   for = "/*"
     [headers.values]
     Access-Control-Allow-Origin = "*"
+

@@ -103,5 +103,8 @@ export default {
   },
   ssr:false,
  
-  
+  // define port 8102
+  server: {
+    port: 8102, // default: 3000
+  }
 }
